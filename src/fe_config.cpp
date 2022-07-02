@@ -1931,19 +1931,6 @@ void FeMiscMenu::get_options( FeConfigContext &ctx )
 	ctx.back_opt().append_vlist( modes );
 #endif
 
-	std::string rotmode;
-	ctx.fe_settings.get_resource( FeSettings::screenRotationDispTokens[ ctx.fe_settings.get_screen_rotation() ], rotmode );
-	std::vector < std::string > rot_modes;
-	i=0;
-	while ( FeSettings::screenRotationDispTokens[i] != 0 )
-	{
-		rot_modes.push_back( std::string() );
-		ctx.fe_settings.get_resource( FeSettings::screenRotationDispTokens[ i ], rot_modes.back() );
-		i++;
-	}
-	ctx.add_optl( Opt::LIST, "Screen Rotation", rotmode, "_help_screen_rotation" );
-	ctx.back_opt().append_vlist( rot_modes );
-
 	std::string startupmode;
 	ctx.fe_settings.get_resource( FeSettings::startupDispTokens[ ctx.fe_settings.get_startup_mode() ], startupmode );
 	std::vector < std::string > startup_modes;
@@ -2076,9 +2063,6 @@ bool FeMiscMenu::save( FeConfigContext &ctx )
 	ctx.fe_settings.set_info( FeSettings::WindowMode,
 			FeSettings::windowModeTokens[ ctx.opt_list[i++].get_vindex() ] );
 #endif
-
-	ctx.fe_settings.set_info( FeSettings::ScreenRotation,
-			FeSettings::screenRotationTokens[ ctx.opt_list[i++].get_vindex() ] );
 
 	ctx.fe_settings.set_info( FeSettings::StartupMode,
 			FeSettings::startupTokens[ ctx.opt_list[i++].get_vindex() ] );

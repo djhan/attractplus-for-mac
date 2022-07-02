@@ -215,24 +215,6 @@ const char *FeSettings::windowModeDispTokens[] =
 	NULL
 };
 
-const char *FeSettings::screenRotationTokens[] =
-{
-	"none",
-	"right",
-	"flip",
-	"left",
-	NULL
-};
-
-const char *FeSettings::screenRotationDispTokens[] =
-{
-	"None (Default)",
-	"Right",
-	"Flip",
-	"Left",
-	NULL
-};
-
 const char *FeSettings::filterWrapTokens[] =
 {
 	"default",
@@ -297,7 +279,6 @@ FeSettings::FeSettings( const std::string &config_path,
 #else
 	m_window_mode( Default ),
 #endif
-	m_screen_rotation( RotateNone ),
 	m_smooth_images( true ),
 	m_filter_wrap_mode( WrapWithinDisplay ),
 	m_selection_max_step( 128 ),
@@ -433,7 +414,6 @@ const char *FeSettings::configSettingStrings[] =
 	"mouse_threshold",
 	"joystick_threshold",
 	"window_mode",
-	"screen_rotation",
 	"filter_wrap_mode",
 	"track_usage",
 	"multiple_monitors",
@@ -544,10 +524,6 @@ int FeSettings::process_setting( const std::string &setting,
 					{
 						case WindowMode:
 							valid = windowModeTokens;
-							break;
-
-						case ScreenRotation:
-							valid = screenRotationTokens;
 							break;
 
 						case FilterWrapMode:
@@ -2774,11 +2750,6 @@ FeSettings::WindowType FeSettings::get_window_mode() const
 	return m_window_mode;
 }
 
-FeSettings::RotationState FeSettings::get_screen_rotation() const
-{
-	return m_screen_rotation;
-}
-
 FeSettings::FilterWrapModeType FeSettings::get_filter_wrap_mode() const
 {
 	return m_filter_wrap_mode;
@@ -2845,8 +2816,6 @@ const std::string FeSettings::get_info( int index ) const
 		return as_str( m_joy_thresh );
 	case WindowMode:
 		return windowModeTokens[ m_window_mode ];
-	case ScreenRotation:
-		return screenRotationTokens[ m_screen_rotation ];
 	case FilterWrapMode:
 		return filterWrapTokens[ m_filter_wrap_mode ];
 	case SelectionMaxStep:
@@ -3062,24 +3031,6 @@ bool FeSettings::set_info( int index, const std::string &value )
 				return false;
 		}
 #endif
-		break;
-
-	case ScreenRotation:
-		{
-			int i=0;
-			while ( screenRotationTokens[i] != NULL )
-			{
-				if ( value.compare( screenRotationTokens[i] ) == 0 )
-				{
-					m_screen_rotation = (RotationState)i;
-					break;
-				}
-				i++;
-			}
-
-			if ( screenRotationTokens[i] == NULL )
-				return false;
-		}
 		break;
 
 	case FilterWrapMode:
