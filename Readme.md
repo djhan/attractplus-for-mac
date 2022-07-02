@@ -16,6 +16,13 @@ Please visit <http://attractmode.org> for more information.
 
 See [Compile.md][] if you intend to compile Attract-Mode from source.
 
+For MacOS
+---------
+This version can build Apple silicon mac version(Not include intel).
+You must set codesign_identity variable of 'util>osx>bundlelibs.py' to your apple developer certification. If you didn't set properly, bulided AttractMode will not work other's mac.
+Open 'util>osx', and run 'create-pkg.sh'.
+
+
 Quick Start
 -----------
 
