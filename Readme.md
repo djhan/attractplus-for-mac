@@ -1,3 +1,12 @@
+For MacOS
+---------
+This version can build Apple silicon Mac version(Not include intel).
+You must set 'codesign_identity' variable of 'util>osx>bundlelibs.py' to your own apple developer certification. 
+On Apple silicon Mac, codesigning is mandatory for distribution. Attract-Mode package includes a lot of 3rd party's library. Developer must apply signing certificate to own binary file and nested libraries, too. 
+So if you didn't set 'codesign_identity' properly, bulided Attract-Mode will not work other's Mac, only work on your Mac.
+
+Open 'util>osx', and run 'create-pkg.sh'.
+
 Attract-Mode Frontend
 ---------------------
 
@@ -15,13 +24,6 @@ version 3 or later.
 Please visit <http://attractmode.org> for more information.
 
 See [Compile.md][] if you intend to compile Attract-Mode from source.
-
-For MacOS
----------
-This version can build Apple silicon mac version(Not include intel).
-You must set codesign_identity variable of 'util>osx>bundlelibs.py' to your apple developer certification. If you didn't set properly, bulided AttractMode will not work other's mac.
-Open 'util>osx', and run 'create-pkg.sh'.
-
 
 Quick Start
 -----------
