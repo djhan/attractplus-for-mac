@@ -737,6 +737,7 @@ bool FeVM::on_new_layout()
 		.Overload<FeImage * (FeImage::*)(const char *)>(_SC("add_artwork"), &FeImage::add_artwork)
 		.Prop( _SC("clear"), &FeImage::get_clear, &FeImage::set_clear )
 		.Prop( _SC("repeat"), &FeImage::get_repeat, &FeImage::set_repeat )
+		.Prop( _SC("redraw"), &FeImage::get_redraw, &FeImage::set_redraw )
 		.Func( _SC("add_clone"), &FeImage::add_clone )
 		.Func( _SC("add_text"), &FeImage::add_text )
 		.Func( _SC("add_listbox"), &FeImage::add_listbox )
@@ -763,6 +764,7 @@ bool FeVM::on_new_layout()
 		.Prop(_SC("word_wrap"), &FeText::get_word_wrap, &FeText::set_word_wrap )
 		.Prop(_SC("first_line_hint"), &FeText::get_first_line_hint, &FeText::set_first_line_hint )
 		.Prop(_SC("msg_width"), &FeText::get_actual_width )
+		.Prop(_SC("msg_height"), &FeText::get_actual_height )
 		.Prop(_SC("font"), &FeText::get_font, &FeText::set_font )
 		// "nomargin" deprecated, use the margin property instead
 		.Prop(_SC("nomargin"), &FeText::get_no_margin, &FeText::set_no_margin )
@@ -994,6 +996,7 @@ bool FeVM::on_new_layout()
 	fe.Func<bool (*)(const char *, int)>(_SC("path_test"), &FeVM::cb_path_test);
 	fe.Func<Table (*)()>(_SC("get_config"), &FeVM::cb_get_config);
 	fe.Func<void (*)(const char *)>(_SC("signal"), &FeVM::cb_signal);
+	fe.Overload<void (*)(int, bool, bool)>(_SC("set_display"), &FeVM::cb_set_display);
 	fe.Overload<void (*)(int, bool)>(_SC("set_display"), &FeVM::cb_set_display);
 	fe.Overload<void (*)(int)>(_SC("set_display"), &FeVM::cb_set_display);
 	fe.Overload<const char *(*)(const char *)>(_SC("get_text"), &FeVM::cb_get_text);
@@ -2662,7 +2665,7 @@ void FeVM::cb_signal( const char *sig )
 	}
 }
 
-void FeVM::cb_set_display( int idx, bool stack_previous )
+void FeVM::cb_set_display( int idx, bool stack_previous, bool reload )
 {
 	HSQUIRRELVM vm = Sqrat::DefaultVM::Get();
 	FeVM *fev = (FeVM *)sq_getforeignptr( vm );
@@ -2673,13 +2676,21 @@ void FeVM::cb_set_display( int idx, bool stack_previous )
 	if ( idx < 0 )
 		idx = 0;
 
-	fes->set_display( idx, stack_previous );
-	fev->m_posted_commands.push( FeInputMap::Reload );
+	if ( fes->set_display( idx, stack_previous ) || reload )
+		fev->m_posted_commands.push( FeInputMap::Reload );
+	else
+		fev->update_to_new_list();
 }
+
+void FeVM::cb_set_display( int idx, bool stack_previous  )
+{
+	cb_set_display( idx, stack_previous, true );
+}
+
 
 void FeVM::cb_set_display( int idx )
 {
-	cb_set_display( idx, false );
+	cb_set_display( idx, false, true );
 }
 
 const char *FeVM::cb_get_text( const char *t )

@@ -160,6 +160,7 @@ protected:
 	void toggle_movie();
 
 	void toggle_rotate( FeSettings::RotationState ); // toggle between none and provided state
+	FeSettings::RotationState get_actual_rotation();
 	void set_transforms();
 	int update( bool reload_list=false, bool new_layout=false );
 
@@ -288,6 +289,7 @@ public:
 	virtual void init_with_default_layout()=0;
 	virtual int get_script_id()=0;
 	virtual void set_script_id( int )=0;
+	virtual bool setup_wizard()=0;
 };
 
 

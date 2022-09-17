@@ -70,8 +70,8 @@ mkdir -p "${APPCONTENT}"/{MacOS,Resources,libs}
 
 cp -r ../config "${APPCONTENT}"/
 [[ -d ../../extras ]] && cp -r ../../extras/* "${APPCONTENT}"/config/
-cp -a ../attract "${APPCONTENT}"/MacOS/
-cp -a "${SCRIPT_PATH}"/attract.icns "${APPCONTENT}"/Resources/
+cp -a ../attractplus "${APPCONTENT}"/MacOS/
+cp -a "${SCRIPT_PATH}"/attractplus.icns "${APPCONTENT}"/Resources/
 cp -a "${SCRIPT_PATH}"/launch.sh "${APPCONTENT}"/MacOS/
 
 # Documentation
@@ -100,7 +100,7 @@ cp osx/background.png "${SCRATCH}/disk/.background/background.png"
 
 # Copy extra libs to bundle and fix link path
 pushd "${APPCONTENT}"/MacOS >/dev/null
-${SCRIPT_PATH}/bundlelibs.py attract
+${SCRIPT_PATH}/bundlelibs.py attractplus
 popd >/dev/null
 
 if [[ "$PLATFORM" != "Darwin" ]]; then

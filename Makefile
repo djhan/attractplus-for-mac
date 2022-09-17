@@ -104,7 +104,7 @@ exec_prefix=$(prefix)
 bindir=$(exec_prefix)/bin
 
 DATA_PATH:=$(datadir)/attract/
-EXE_BASE=attract
+EXE_BASE=attractplus
 EXE_EXT=
 OBJ_DIR=obj
 SRC_DIR=src
@@ -244,8 +244,7 @@ else
 endif
 
 ifeq ($(FE_MACOSX_COMPILE),1)
-  CFLAGS += -I/opt/homebrew/Cellar/sfml/2.5.1_1/include -L/opt/homebrew/Cellar/sfml/2.5.1_1/lib
-  CFLAGS += -I/opt/homebrew/Cellar/jpeg/9e/include -L/opt/homebrew/Cellar/jpeg/9e/lib
+  CFLAGS += -L/opt/homebrew/Cellar/jpeg/9e/lib
   LIBS += -framework OpenGL -ljpeg
 endif
 
@@ -269,7 +268,7 @@ ifeq ($(FE_WINDOWS_COMPILE),1)
  ifeq ($(WINDOWS_CONSOLE),1)
   CFLAGS += -mconsole
   FE_FLAGS += -DWINDOWS_CONSOLE
-  EXE_BASE=attract-console
+  EXE_BASE=attractplus-console
  else
   CFLAGS += -Wl,--subsystem,windows
  endif

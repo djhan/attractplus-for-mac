@@ -50,7 +50,11 @@
 
 const char *FE_DEFAULT_CFG_PATH		= "./";
 const char *FE_DEFAULT_FONT			= "arial";
-const char *FE_DEFAULT_FONT_PATHS[]	= { "%SYSTEMROOT%/Fonts/", NULL };
+const char *FE_DEFAULT_FONT_PATHS[]	=
+{
+	"%SYSTEMROOT%/Fonts/",
+	NULL
+};
 
 #elif defined(SFML_SYSTEM_MACOS)
 
@@ -215,6 +219,24 @@ const char *FeSettings::windowModeDispTokens[] =
 	NULL
 };
 
+const char *FeSettings::screenRotationTokens[] =
+{
+	"none",
+	"right",
+	"flip",
+	"left",
+	NULL
+};
+
+const char *FeSettings::screenRotationDispTokens[] =
+{
+	"None (Default)",
+	"Right",
+	"Flip",
+	"Left",
+	NULL
+};
+
 const char *FeSettings::filterWrapTokens[] =
 {
 	"default",
@@ -279,6 +301,7 @@ FeSettings::FeSettings( const std::string &config_path,
 #else
 	m_window_mode( Default ),
 #endif
+	m_screen_rotation( RotateNone ),
 	m_smooth_images( true ),
 	m_filter_wrap_mode( WrapWithinDisplay ),
 	m_selection_max_step( 128 ),
@@ -414,6 +437,7 @@ const char *FeSettings::configSettingStrings[] =
 	"mouse_threshold",
 	"joystick_threshold",
 	"window_mode",
+	"screen_rotation",
 	"filter_wrap_mode",
 	"track_usage",
 	"multiple_monitors",
@@ -524,6 +548,10 @@ int FeSettings::process_setting( const std::string &setting,
 					{
 						case WindowMode:
 							valid = windowModeTokens;
+							break;
+
+						case ScreenRotation:
+							valid = screenRotationTokens;
 							break;
 
 						case FilterWrapMode:
@@ -2677,7 +2705,21 @@ bool FeSettings::get_font_file(
 	}
 
 	//
-	// First check if there is a matching font file in the
+	// First try to load font file directly
+	//
+	std::string filename = clean_path( fontname );
+
+	if ( is_relative_path( filename ))
+		filename = FePresent::script_get_base_path() + filename;
+
+	if ( file_exists( filename ))
+	{
+		ffile = filename;
+		return true;
+	}
+
+	//
+	// Check if there is a matching font file in the
 	// layout/plugin directory
 	//
 	std::string test;
@@ -2687,8 +2729,28 @@ bool FeSettings::get_font_file(
 	if ( !layout_dir.empty() && search_for_file( layout_dir,
 		fontname, FE_FONT_EXTENSIONS, test ) )
 	{
+		FeLog() << " ! NOTE: Relative path to " << fontname << " not provided. Font found in a subfolder. This may be slower." << std::endl;
 		ffile = test;
 		return true;
+	}
+
+	std::vector<std::string> path_list;
+	std::vector<std::string>::const_iterator its;
+
+	//
+	// m_font_paths contains the configured paths (which may need further
+	// processing ($HOME substitution etc)
+	//
+	for ( its=m_font_paths.begin(); its!=m_font_paths.end(); ++its )
+		path_list.push_back( clean_path( *its, true ) );
+
+	for ( its=path_list.begin(); its!= path_list.end(); ++its )
+	{
+		if ( search_for_file( (*its), fontname, FE_FONT_EXTENSIONS, test ) )
+		{
+			ffile = test;
+			return true;
+		}
 	}
 
 #ifdef USE_FONTCONFIG
@@ -2723,31 +2785,17 @@ bool FeSettings::get_font_file(
 		return true;
 #endif
 
-	std::vector<std::string> path_list;
-	std::vector<std::string>::const_iterator its;
-
-	//
-	// m_font_paths contains the configured paths (which may need further
-	// processing ($HOME substitution etc)
-	//
-	for ( its=m_font_paths.begin(); its!=m_font_paths.end(); ++its )
-		path_list.push_back( clean_path( *its, true ) );
-
-	for ( its=path_list.begin(); its!= path_list.end(); ++its )
-	{
-		if ( search_for_file( (*its), fontname, FE_FONT_EXTENSIONS, test ) )
-		{
-			ffile = test;
-			return true;
-		}
-	}
-
 	return false;
 }
 
 FeSettings::WindowType FeSettings::get_window_mode() const
 {
 	return m_window_mode;
+}
+
+FeSettings::RotationState FeSettings::get_screen_rotation() const
+{
+	return m_screen_rotation;
 }
 
 FeSettings::FilterWrapModeType FeSettings::get_filter_wrap_mode() const
@@ -2816,6 +2864,8 @@ const std::string FeSettings::get_info( int index ) const
 		return as_str( m_joy_thresh );
 	case WindowMode:
 		return windowModeTokens[ m_window_mode ];
+	case ScreenRotation:
+		return screenRotationTokens[ m_screen_rotation ];
 	case FilterWrapMode:
 		return filterWrapTokens[ m_filter_wrap_mode ];
 	case SelectionMaxStep:
@@ -3031,6 +3081,24 @@ bool FeSettings::set_info( int index, const std::string &value )
 				return false;
 		}
 #endif
+		break;
+
+	case ScreenRotation:
+		{
+			int i=0;
+			while ( screenRotationTokens[i] != NULL )
+			{
+				if ( value.compare( screenRotationTokens[i] ) == 0 )
+				{
+					m_screen_rotation = (RotationState)i;
+					break;
+				}
+				i++;
+			}
+
+			if ( screenRotationTokens[i] == NULL )
+				return false;
+		}
 		break;
 
 	case FilterWrapMode:
