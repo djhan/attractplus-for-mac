@@ -244,7 +244,6 @@ else
 endif
 
 ifeq ($(FE_MACOSX_COMPILE),1)
-  #CFLAGS += -L/opt/homebrew/Cellar/jpeg/9e/lib
   LIBS += -framework OpenGL -L/opt/homebrew/Cellar/jpeg/9e/lib -ljpeg
 endif
 
